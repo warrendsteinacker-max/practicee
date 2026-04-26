@@ -47,11 +47,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: client
+        working-directory: churchblog
 
       - name: Build project
         run: npm run build
-        working-directory: client
+        working-directory: churchblog
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
