@@ -1,44 +1,77 @@
 
-const path = require("path")
+const path = require("path");
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
 const { Octokit } = require("@octokit/core");
 
 const app = express();
-app.use(cors()); // Allows your frontend to talk to this server
-app.use(express.json()); // Parses incoming JSON data
+app.use(cors()); 
+app.use(express.json()); 
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-console.log("Token Loaded:", process.env.GITHUB_TOKEN ? "YES" : "NO (Check .env file)");
+// Check if token is loaded from the root .env
+console.log("Token Loaded:", process.env.GITHUB_TOKEN ? "YES" : "NO (Check .env file at root)");
 
 const REPO_OWNER = 'warrendsteinacker-max';
 const REPO_NAME = 'practicee';
 
+/**
+ * SETTINGS
+ */
+const ALLOW_INVITES = true; // Set to false to block invite requests from the frontend
 
-async function triggerGithubAction(postData) {
+/**
+ * Helper to trigger GitHub Actions
+ */
+async function triggerGithubAction(eventType, payload) {
   try {
-    // We only put the data GitHub actually wants in the body
     await octokit.request(`POST /repos/${REPO_OWNER}/${REPO_NAME}/dispatches`, {
-      event_type: 'backend_post', 
-      client_payload: {
-        title: postData.title,
-        content: postData.content,
-        timestamp: new Date().toISOString()
-      }
+      event_type: eventType, 
+      client_payload: payload
     });
-    console.log("🚀 GitHub Action successfully triggered!");
+    console.log(`🚀 GitHub Action (${eventType}) successfully triggered!`);
     return true;
   } catch (error) {
-    // This will now show you the specific validation error if it fails again
     console.error("❌ GitHub API Error:", error.message);
     return false;
   }
 }
 
 /**
- * POST Route: Your frontend calls this to "Make a Post"
+ * Route: Slack Invite Request
+ */
+app.post('/api/invite', async (req, res) => {
+  const { email } = req.body;
+
+  // 1. Check the Boolean Gatekeeper
+  if (!ALLOW_INVITES) {
+    console.log(`🚫 Blocked invite request for: ${email} (ALLOW_INVITES is false)`);
+    return res.status(403).json({ error: "Invitations are currently disabled." });
+  }
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: "A valid email is required." });
+  }
+
+  console.log(`✉️ Processing invite request for: ${email}`);
+
+  // 2. Trigger the "invite" job in your YAML
+  const success = await triggerGithubAction('slack_invite', { 
+    email: email,
+    timestamp: new Date().toISOString() 
+  });
+
+  if (success) {
+    res.status(200).json({ message: "Invite request sent successfully!" });
+  } else {
+    res.status(500).json({ error: "Failed to process invite request." });
+  }
+});
+
+/**
+ * Route: Blog Post
  */
 app.post('/api/posts', async (req, res) => {
   const { title, content } = req.body;
@@ -49,8 +82,11 @@ app.post('/api/posts', async (req, res) => {
 
   console.log(`📝 Received new post: ${title}`);
 
-  // Trigger the build/deploy workflow
-  const success = await triggerGithubAction({ title, content });
+  const success = await triggerGithubAction('backend_post', {
+    title: title,
+    content: content,
+    timestamp: new Date().toISOString()
+  });
 
   if (success) {
     res.status(200).json({ message: "Post received and deploy triggered!" });
@@ -63,7 +99,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });
-
 
 
 
