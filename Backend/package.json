@@ -10,6 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@octokit/core": "^7.0.6"
+    "@octokit/core": "^7.0.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
   }
 }
