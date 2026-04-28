@@ -64,6 +64,8 @@ jobs:
         working-directory: churchblog
 
       - name: Build project
+        env:
+          VITE_SLACK_INVITE_LINK: ${{ secrets.SLACK_INVITE_LINK }}
         run: npm run build
         working-directory: churchblog
 

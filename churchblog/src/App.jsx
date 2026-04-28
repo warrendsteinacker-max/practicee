@@ -9,6 +9,8 @@ function App() {
   // Grab the link from your root .env (prefixed with VITE_)
   const SLACK_LINK = import.meta.env.VITE_SLACK_INVITE_LINK;
 
+  console.log("Slack Link:", SLACK_LINK);
+
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     setPostLoading(true);
@@ -40,7 +42,7 @@ function App() {
 
       if (response.ok) {
         // AUTOMATIC FLOW: Backend allowed it, so we show the link
-        alert(`Success! Join our Slack here: ${SLACK_LINK}`);
+        alert(`Success! Join our Slack here:`);
         setEmail('');
       } else {
         const data = await response.json();
