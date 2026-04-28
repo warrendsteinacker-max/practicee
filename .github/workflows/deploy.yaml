@@ -23,7 +23,7 @@ jobs:
     if: github.event.action == 'slack_invite'
     runs-on: ubuntu-latest
     steps:
-      - name: Notify Admin to Approve Request
+      - name: Send Join Link to Admin
         uses: slackapi/slack-github-action@v2.0.0
         with:
           method: chat.postMessage
@@ -31,18 +31,7 @@ jobs:
           payload: |
             {
               "channel": "C0AUJ33K0MV",
-              "text": "✉️ *New Invite Request!*\n*Email:* ${{ github.event.client_payload.email }}\n*Action:* Please send them this join link: ${{ secrets.SLACK_INVITE_LINK }}"
-            }
-      
-      - name: Notify Admin of Invite Request
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            {
-              "channel": "C0AUJ33K0MV",
-              "text": "✉️ *Invite Sent!* \nEmail: ${{ github.event.client_payload.email }} was invited to the workspace."
+              "text": "✉️ *New Slack Invite Request*\n*User Email:* ${{ github.event.client_payload.email }}\n*Action:* Since we are on a Free Plan, please send them this join link manually: ${{ secrets.SLACK_INVITE_LINK }}"
             }
   build:
     runs-on: ubuntu-latest
