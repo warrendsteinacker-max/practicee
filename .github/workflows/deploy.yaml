@@ -61,7 +61,7 @@ jobs:
           cache-dependency-path: churchblog/package-lock.json          
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
         working-directory: churchblog
 
       - name: Build project
