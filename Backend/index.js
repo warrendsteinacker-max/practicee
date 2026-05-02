@@ -1,3 +1,32 @@
+class C {
+
+    constructor(age, gender){
+        this.age = age;
+        this.gender = gender;
+    }
+
+    set age(val){
+        if(val < 18){
+            console.log("too young");
+        }
+        else{
+            this.age = val;
+        }
+    }
+
+    get age(val){
+        return this.age;
+    }
+
+}
+
+const man = new C(11, "male")
+
+
+
+
+
+
 const path = require("path");
 // Ensures the backend can find the .env file in the PRA root
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
