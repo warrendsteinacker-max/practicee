@@ -14,7 +14,7 @@ class C {
         }
     }
 
-    get age(val){
+    get age(){
         return this.age;
     }
 
